@@ -36,7 +36,13 @@ public class Injector {
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
+                field.setAccessible(true); // разрешаем доступ к private
 
+                try {
+                    field.set(clazzImplementationInstance, fieldInstance); // ВАЖНО
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
                 clazzImplementationInstance = createNewInstance(clazz);
 
             }
@@ -57,7 +63,7 @@ public class Injector {
         try {
             constructor = clazz.getConstructor();
         } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Can't get constructor for class " + clazz.getName(), e);
         }
         Object instance = null;
         try {
