@@ -15,11 +15,11 @@ import mate.academy.service.impl.ProductServiceImpl;
 public class Injector {
     private static final Injector injector = new Injector();
 
+    private Map<Class<?>, Object> instances = new HashMap<>();
+
     public static Injector getInjector() {
         return injector;
     }
-
-    private Map<Class<?>, Object> instances = new HashMap<>();
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
