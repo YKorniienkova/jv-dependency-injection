@@ -13,12 +13,13 @@ import mate.academy.service.impl.ProductParserImpl;
 import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
-    private Map<Class<?>, Object> instances = new HashMap<>();
     private static final Injector injector = new Injector();
 
     public static Injector getInjector() {
         return injector;
     }
+
+    private Map<Class<?>, Object> instances = new HashMap<>();
 
     public Object getInstance(Class<?> interfaceClazz) {
         Class<?> clazz = findImplementation(interfaceClazz);
@@ -44,15 +45,12 @@ public class Injector {
                     throw new RuntimeException(e);
                 }
                 clazzImplementationInstance = createNewInstance(clazz);
-
             }
         }
         if (clazzImplementationInstance == null) {
             clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
-
-
     }
 
     private Object createNewInstance(Class<?> clazz) {
