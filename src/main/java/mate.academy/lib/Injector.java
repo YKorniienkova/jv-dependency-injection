@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Injector {
+    int i = 0;
     private Map<Class<?>, Object> instances = new HashMap<>();
     private static final Injector injector = new Injector();
 
