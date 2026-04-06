@@ -39,7 +39,7 @@ public class Injector {
                 Object fieldInstance = getInstance(field.getType());
                 field.setAccessible(true);
                 try {
-                    field.set(clazzImplementationInstance, fieldInstance); // ВАЖНО
+                    field.set(clazzImplementationInstance, fieldInstance);
                 } catch (IllegalAccessException e) {
                     throw new RuntimeException("Can't inject dependency into field "
                             + field.getName(), e);
