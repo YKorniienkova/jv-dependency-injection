@@ -14,8 +14,7 @@ import mate.academy.service.impl.ProductServiceImpl;
 
 public class Injector {
     private static final Injector injector = new Injector();
-
-    private Map<Class<?>, Object> instances = new HashMap<>();
+    private static final Map<Class<?>, Object> instances = new HashMap<>();
 
     public static Injector getInjector() {
         return injector;
@@ -32,22 +31,20 @@ public class Injector {
             return instances.get(clazz);
         }
 
-        Field[] declaredFields = clazz.getDeclaredFields();
         Object clazzImplementationInstance = createNewInstance(clazz);;
+
+        Field[] declaredFields = clazz.getDeclaredFields();
         for (Field field : declaredFields) {
             if (field.isAnnotationPresent(Inject.class)) {
                 Object fieldInstance = getInstance(field.getType());
-                field.setAccessible(true); // разрешаем доступ к private
-
+                field.setAccessible(true);
                 try {
                     field.set(clazzImplementationInstance, fieldInstance); // ВАЖНО
                 } catch (IllegalAccessException e) {
-                    throw new RuntimeException(e);
+                    throw new RuntimeException("Can't inject dependency into field "
+                            + field.getName(), e);
                 }
             }
-        }
-        if (clazzImplementationInstance == null) {
-            clazzImplementationInstance = createNewInstance(clazz);
         }
         return clazzImplementationInstance;
     }
@@ -56,17 +53,18 @@ public class Injector {
         if (instances.containsKey(clazz)) {
             return instances.get(clazz);
         }
-        Constructor<?> constructor = null;
+        Constructor<?> constructor;
         try {
             constructor = clazz.getConstructor();
         } catch (NoSuchMethodException e) {
             throw new RuntimeException("Can't get constructor for class " + clazz.getName(), e);
         }
-        Object instance = null;
+        Object instance;
         try {
             instance = constructor.newInstance();
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Can't create instance of class "
+                    + clazz.getName(), e);
         }
         instances.put(clazz, instance);
         return instance;
@@ -78,7 +76,12 @@ public class Injector {
         interfaceImplementation.put(ProductParser.class, ProductParserImpl.class);
         interfaceImplementation.put(ProductService.class, ProductServiceImpl.class);
         if (interfaceClazz.isInterface()) {
-            return interfaceImplementation.get(interfaceClazz);
+            Class<?> implementation = interfaceImplementation.get(interfaceClazz);
+            if (implementation == null) {
+                throw new RuntimeException("No implementation found for "
+                        + interfaceClazz.getName());
+            }
+            return implementation;
         }
         return interfaceClazz;
     }
